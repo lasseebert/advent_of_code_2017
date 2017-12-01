@@ -21,6 +21,21 @@ defmodule Advent.Dec01 do
   1234 produces 0 because no digit matches the next.
   91212129 produces 9 because the only digit that matches the next one is the last digit, 9.
   What is the solution to your captcha?
+
+  --- Part Two ---
+
+  You notice a progress bar that jumps to 50% completion. Apparently, the door isn't yet satisfied, but it did emit a star as encouragement. The instructions change:
+
+  Now, instead of considering the next digit, it wants you to consider the digit halfway around the circular list. That is, if your list contains 10 items, only include a digit in your sum if the digit 10/2 = 5 steps forward matches it. Fortunately, your list has an even number of elements.
+
+  For example:
+
+  1212 produces 6: the list contains 4 items, and all four digits match the digit 2 items ahead.
+  1221 produces 0, because every comparison is between a 1 and a 2.
+  123425 produces 4, because both 2s match each other, but no other digit has a match.
+  123123 produces 12.
+  12131415 produces 4.
+  What is the solution to your new captcha?
   """
 
   @external_resource "inputs/dec_01"
@@ -38,5 +53,20 @@ defmodule Advent.Dec01 do
   end
   def run(<<_a, rest::binary>>, acc) do
     run(rest, acc)
+  end
+
+  def run_part_2(input \\ @default_input) do
+    {a, b} = input |> String.split_at(div(String.length(input), 2))
+    run_part_2(a, b, 0)
+  end
+
+  def run_part_2("", "", acc) do
+    acc
+  end
+  def run_part_2(<<a, rest_a::binary>>, <<a, rest_b::binary>>, acc) do
+    run_part_2(rest_a, rest_b, acc + String.to_integer(<<a>>) * 2)
+  end
+  def run_part_2(<<_a, rest_a::binary>>, <<_b, rest_b::binary>>, acc) do
+    run_part_2(rest_a, rest_b, acc)
   end
 end
