@@ -27,8 +27,6 @@ defmodule Advent.Dec01 do
   @default_input File.read!("inputs/dec_01") |> String.trim
 
   def run(<<a, _::binary>> = input \\ @default_input) do
-    IO.inspect(a)
-    IO.inspect(input)
     run(input <> <<a>>, 0)
   end
 
