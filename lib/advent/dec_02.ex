@@ -17,6 +17,26 @@ defmodule Advent.Dec02 do
   In this example, the spreadsheet's checksum would be 8 + 4 + 6 = 18.
 
   What is the checksum for the spreadsheet in your puzzle input?
+
+  --- Part Two ---
+
+  "Great work; looks like we're on the right track after all. Here's a star for your effort." However, the program seems a little worried. Can programs be worried?
+
+  "Based on what we're seeing, it looks like all the User wanted is some information about the evenly divisible values in the spreadsheet. Unfortunately, none of us are equipped for that kind of calculation - most of us specialize in bitwise operations."
+
+  It sounds like the goal is to find the only two numbers in each row where one evenly divides the other - that is, where the result of the division operation is a whole number. They would like you to find those numbers on each line, divide them, and add up each line's result.
+
+  For example, given the following spreadsheet:
+
+  5 9 2 8
+  9 4 7 3
+  3 8 6 5
+  In the first row, the only two numbers that evenly divide are 8 and 2; the result of this division is 4.
+  In the second row, the two numbers are 9 and 3; the result is 3.
+  In the third row, the result is 2.
+  In this example, the sum of the results would be 4 + 3 + 2 = 9.
+
+  What is the sum of each row's result in your puzzle input?
   """
 
   @default_input_path "inputs/dec_02"
@@ -31,6 +51,13 @@ defmodule Advent.Dec02 do
     |> Enum.sum
   end
 
+  def run_2(input \\ @default_input) do
+    input
+    |> parse
+    |> Enum.map(&division_result/1)
+    |> Enum.sum
+  end
+
   defp parse(input) do
     input
     |> String.split("\n", trim: true)
@@ -39,5 +66,20 @@ defmodule Advent.Dec02 do
       |> String.split(~r/\W/)
       |> Enum.map(&String.to_integer/1)
     end)
+  end
+
+  defp division_result(row) do
+    [first | rest] = row |> Enum.sort
+    division_result(first, rest, rest)
+  end
+
+  defp division_result(_n, [], [first | rest]) do
+    division_result(first, rest, rest)
+  end
+  defp division_result(n, [a | _rest], _row) when rem(a, n) == 0 do
+    div(a, n)
+  end
+  defp division_result(n, [_a | rest], row) do
+    division_result(n, rest, row)
   end
 end
