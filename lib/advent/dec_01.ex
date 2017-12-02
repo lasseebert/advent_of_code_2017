@@ -41,32 +41,32 @@ defmodule Advent.Dec01 do
   @external_resource "inputs/dec_01"
   @default_input File.read!("inputs/dec_01") |> String.trim
 
-  def run(<<a, _::binary>> = input \\ @default_input) do
-    run(input <> <<a>>, 0)
-  end
+  def run(input \\ @default_input) do
+    digits = input |> to_digits
 
-  def run("", acc) do
-    acc
-  end
-  def run(<<a, a, rest::binary>>, acc) do
-    run(<<a, rest::binary>>, acc + String.to_integer(<<a>>))
-  end
-  def run(<<_a, rest::binary>>, acc) do
-    run(rest, acc)
+    digits
+    |> Stream.concat(Enum.take(digits, 1))
+    |> Stream.chunk_every(2, 1, [:noop])
+    |> Stream.filter(fn [a, b] -> a == b end)
+    |> Stream.map(&hd/1)
+    |> Enum.sum
   end
 
   def run_part_2(input \\ @default_input) do
-    {a, b} = input |> String.split_at(div(String.length(input), 2))
-    run_part_2(a, b, 0)
+    digits = input |> to_digits
+    {first_half, second_half} = digits |> Enum.split(digits |> Enum.count |> div(2))
+
+    first_half
+    |> Stream.zip(second_half)
+    |> Stream.filter(fn {a, b} -> a == b end)
+    |> Stream.map(&elem(&1, 0))
+    |> Enum.sum
+    |> Kernel.*(2)
   end
 
-  def run_part_2("", "", acc) do
-    acc
-  end
-  def run_part_2(<<a, rest_a::binary>>, <<a, rest_b::binary>>, acc) do
-    run_part_2(rest_a, rest_b, acc + String.to_integer(<<a>>) * 2)
-  end
-  def run_part_2(<<_a, rest_a::binary>>, <<_b, rest_b::binary>>, acc) do
-    run_part_2(rest_a, rest_b, acc)
+  defp to_digits(string) do
+    string
+    |> String.graphemes
+    |> Stream.map(&String.to_integer/1)
   end
 end
