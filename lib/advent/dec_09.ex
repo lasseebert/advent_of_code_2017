@@ -67,10 +67,10 @@ defmodule Advent.Dec09 do
   defp tokenize(:list, "{" <> input, acc), do: tokenize(:list, input, ["{" | acc])
   defp tokenize(:list, "}" <> input, acc), do: tokenize(:list, input, ["}" | acc])
   defp tokenize(:list, "," <> input, acc), do: tokenize(:list, input, acc)
-  defp tokenize(:list, "<" <> input, acc), do: tokenize(:comment, input, [{:garbage, 0} | acc])
+  defp tokenize(:list, "<" <> input, acc), do: tokenize(:comment, input, [{:g, 0} | acc])
   defp tokenize(:comment, "!" <> <<_>> <> input, acc), do: tokenize(:comment, input, acc)
   defp tokenize(:comment, ">" <> input, acc), do: tokenize(:list, input, acc)
-  defp tokenize(:comment, <<_>> <> input, [{:garbage, count} | acc]), do: tokenize(:comment, input, [{:garbage, count + 1} | acc])
+  defp tokenize(:comment, <<_>> <> input, [{:g, count} | acc]), do: tokenize(:comment, input, [{:g, count + 1} | acc])
 
   defp score(tokens, depth \\ 1, acc \\ 0)
   defp score(["{" | rest], d, a), do: score(rest, d + 1, a + d)
@@ -79,7 +79,7 @@ defmodule Advent.Dec09 do
   defp score([], 1, a), do: a
 
   defp sum_garbage(tokens, acc \\ 0)
-  defp sum_garbage([{:garbage, count} | rest], acc), do: sum_garbage(rest, acc + count)
+  defp sum_garbage([{:g, count} | rest], acc), do: sum_garbage(rest, acc + count)
   defp sum_garbage([_ | rest], acc), do: sum_garbage(rest, acc)
   defp sum_garbage([], acc), do: acc
 end
