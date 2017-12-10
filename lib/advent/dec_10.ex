@@ -38,28 +38,61 @@ defmodule Advent.Dec10 do
   However, you should instead use the standard list size of 256 (with values 0 to 255) and the sequence of lengths in your puzzle input. Once this process is complete, what is the result of multiplying the first two numbers in the list?
   """
 
-  @default_size 256
+  @size 256
   @default_input "189,1,111,246,254,2,0,120,215,93,255,50,84,15,94,62"
+  @seed [17, 31, 73, 47, 23]
 
-  def part_1(size \\ @default_size, input \\ @default_input) do
+  require Bitwise
+
+  def part_1(size \\ @size, input \\ @default_input) do
     list = 0..(size - 1) |> Enum.into([])
     lengths = input |> String.split(",") |> Enum.map(&String.to_integer/1)
-    [a, b | _rest] = hash(list, lengths, size, 0, 0)
+    {[a, b | _rest], _, _} = one_round({list, 0, 0}, lengths, size)
     a * b
   end
 
-  defp hash(list, [], _size, _current, _skip), do: list
-  defp hash(list, [length | lengths], size, current, skip) do
+  def part_2(input \\ @default_input) do
+    lengths = String.to_charlist(input) ++ @seed
+    size = @size
+    list = 0..(size - 1) |> Enum.into([])
+
+    state = {list, 0, 0}
+
+    1..64
+    |> Enum.reduce(state, fn _i, state -> one_round(state, lengths, size) end)
+    |> elem(0)
+    |> dense
+    |> :binary.list_to_bin
+    |> Base.encode16(case: :lower)
+  end
+
+  defp dense(list) do
     list
-    |> twist(length, current, size)
-    |> hash(lengths, size, rem(current + length + skip, size), skip + 1)
+    |> Enum.chunk_every(16)
+    |> Enum.map(fn chunk ->
+      Enum.reduce(chunk, &Bitwise.bxor/2)
+    end)
+  end
+
+  defp one_round(state, [], _size), do: state
+  defp one_round({list, current, skip}, [length | lengths], size) do
+    list = list |> twist(length, current, size)
+    one_round({list, rem(current + length + skip, size), skip + 1}, lengths, size)
   end
 
   defp twist(list, length, current, size) do
+    # Split at current and put first section at back to deal with overlap at end of list
     {l1, l2} = Enum.split(list, current)
-    {l1, l2} = Enum.split(l2 ++ l1, length)
+    list = l2 ++ l1
+
+    # Split at length to isolate the part we reverse
+    # Then put together again
+    {l1, l2} = Enum.split(list, length)
     l1 = Enum.reverse(l1)
-    {l1, l2} = Enum.split(l1 ++ l2, size - current)
+    list = l1 ++ l2
+
+    # Put back together to have the same indices
+    {l1, l2} = Enum.split(list, size - current)
     l2 ++ l1
   end
 end
