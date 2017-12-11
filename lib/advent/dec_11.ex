@@ -36,17 +36,28 @@ defmodule Advent.Dec11 do
   def num_steps(input \\ @default_input) do
     input
     |> parse
-    |> coords
-    |> Tuple.to_list
-    |> Enum.map(&abs/1)
-    |> Enum.max
-  end
-
-  defp coords(dirs) do
-    dirs
     |> Enum.reduce({0, 0}, fn dir, coord ->
       move(coord, dir)
     end)
+    |> distance
+  end
+
+  def max_steps(input \\ @default_input) do
+    input
+    |> parse
+    |> Enum.reduce({{0, 0}, 0}, fn dir, {coord, max} ->
+      coord = move(coord, dir)
+      max = [max, distance(coord)] |> Enum.max
+      {coord, max}
+    end)
+    |> elem(1)
+  end
+
+  defp distance(coord) do
+    coord
+    |> Tuple.to_list
+    |> Enum.map(&abs/1)
+    |> Enum.max
   end
 
   defp move({x, y}, :n), do: {x, y + 1}

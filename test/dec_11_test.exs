@@ -20,4 +20,22 @@ defmodule Advent.Dec11Test do
       assert Dec11.num_steps("se,sw,se,sw,sw") == 3
     end
   end
+
+  describe "max_steps" do
+    test "example 1" do
+      assert Dec11.max_steps("ne,ne,ne") == 3
+    end
+
+    test "example 2" do
+      assert Dec11.max_steps("ne,ne,sw,sw") == 2
+    end
+
+    test "example 3" do
+      assert Dec11.max_steps("ne,ne,s,s") == 2
+    end
+
+    test "example 4" do
+      assert Dec11.max_steps("se,sw,se,sw,sw") == 3
+    end
+  end
 end
