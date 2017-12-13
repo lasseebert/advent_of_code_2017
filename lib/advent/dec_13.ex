@@ -159,6 +159,121 @@ defmodule Advent.Dec13 do
   The severity of getting caught on a layer is equal to its depth multiplied by its range. (Ignore layers in which you do not get caught.) The severity of the whole trip is the sum of these values. In the example above, the trip severity is 0*3 + 6*4 = 24.
 
   Given the details of the firewall you've recorded, if you leave immediately, what is the severity of your whole trip?
+
+  --- Part Two ---
+
+  Now, you need to pass through the firewall without being caught - easier said than done.
+
+  You can't control the speed of the packet, but you can delay it any number of picoseconds. For each picosecond you delay the packet before beginning your trip, all security scanners move one step. You're not in the firewall during this time; you don't enter layer 0 until you stop delaying the packet.
+
+  In the example above, if you delay 10 picoseconds (picoseconds 0 - 9), you won't get caught:
+
+  State after delaying:
+   0   1   2   3   4   5   6
+  [ ] [S] ... ... [ ] ... [ ]
+  [ ] [ ]         [ ]     [ ]
+  [S]             [S]     [S]
+                  [ ]     [ ]
+
+  Picosecond 10:
+   0   1   2   3   4   5   6
+  ( ) [S] ... ... [ ] ... [ ]
+  [ ] [ ]         [ ]     [ ]
+  [S]             [S]     [S]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  ( ) [ ] ... ... [ ] ... [ ]
+  [S] [S]         [S]     [S]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+
+  Picosecond 11:
+   0   1   2   3   4   5   6
+  [ ] ( ) ... ... [ ] ... [ ]
+  [S] [S]         [S]     [S]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  [S] (S) ... ... [S] ... [S]
+  [ ] [ ]         [ ]     [ ]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+
+  Picosecond 12:
+   0   1   2   3   4   5   6
+  [S] [S] (.) ... [S] ... [S]
+  [ ] [ ]         [ ]     [ ]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  [ ] [ ] (.) ... [ ] ... [ ]
+  [S] [S]         [S]     [S]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+
+  Picosecond 13:
+   0   1   2   3   4   5   6
+  [ ] [ ] ... (.) [ ] ... [ ]
+  [S] [S]         [S]     [S]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  [ ] [S] ... (.) [ ] ... [ ]
+  [ ] [ ]         [ ]     [ ]
+  [S]             [S]     [S]
+                  [ ]     [ ]
+
+
+  Picosecond 14:
+   0   1   2   3   4   5   6
+  [ ] [S] ... ... ( ) ... [ ]
+  [ ] [ ]         [ ]     [ ]
+  [S]             [S]     [S]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  [ ] [ ] ... ... ( ) ... [ ]
+  [S] [S]         [ ]     [ ]
+  [ ]             [ ]     [ ]
+                  [S]     [S]
+
+
+  Picosecond 15:
+   0   1   2   3   4   5   6
+  [ ] [ ] ... ... [ ] (.) [ ]
+  [S] [S]         [ ]     [ ]
+  [ ]             [ ]     [ ]
+                  [S]     [S]
+
+   0   1   2   3   4   5   6
+  [S] [S] ... ... [ ] (.) [ ]
+  [ ] [ ]         [ ]     [ ]
+  [ ]             [S]     [S]
+                  [ ]     [ ]
+
+
+  Picosecond 16:
+   0   1   2   3   4   5   6
+  [S] [S] ... ... [ ] ... ( )
+  [ ] [ ]         [ ]     [ ]
+  [ ]             [S]     [S]
+                  [ ]     [ ]
+
+   0   1   2   3   4   5   6
+  [ ] [ ] ... ... [ ] ... ( )
+  [S] [S]         [S]     [S]
+  [ ]             [ ]     [ ]
+                  [ ]     [ ]
+  Because all smaller delays would get you caught, the fewest number of picoseconds you would need to delay to get through safely is 10.
+
+  What is the fewest number of picoseconds that you need to delay the packet to pass through the firewall without being caught?
   """
 
   @default_input_path "inputs/dec_13"
@@ -168,8 +283,27 @@ defmodule Advent.Dec13 do
   def severity(input \\ @default_input) do
     input
     |> parse
-    |> Enum.filter(fn {depth, range} -> rem(depth, 2 * (range - 1)) == 0 end)
+    |> Enum.filter(&caught?(&1, 0))
     |> Enum.reduce(0, fn {depth, range}, acc -> acc + depth * range end)
+  end
+
+  def min_delay(input \\ @default_input) do
+    input
+    |> parse
+    |> min_delay(0)
+  end
+
+  defp min_delay(layers, delay) do
+    layers
+    |> Enum.any?(&caught?(&1, delay))
+    |> case do
+      true -> min_delay(layers, delay + 1)
+      false -> delay
+    end
+  end
+
+  defp caught?({depth, range}, delay) do
+    rem(depth + delay, 2 * (range - 1)) == 0
   end
 
   defp parse(input) do
