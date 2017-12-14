@@ -51,7 +51,7 @@ defmodule Advent.Dec10 do
     a * b
   end
 
-  def part_2(input \\ @default_input) do
+  def knot_hash(input \\ @default_input) do
     lengths = String.to_charlist(input) ++ @seed
     size = @size
     list = 0..(size - 1) |> Enum.into([])
