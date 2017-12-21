@@ -77,6 +77,10 @@ defmodule Advent.Dec21 do
   Thus, after 2 iterations, the grid contains 12 pixels that are on.
 
   How many pixels stay on after 5 iterations?
+
+  --- Part Two ---
+
+  How many pixels stay on after 18 iterations?
   """
 
   @default_input_path "inputs/dec_21"
@@ -220,6 +224,10 @@ defmodule Advent.Dec21 do
     init_image()
     |> iterate(transitions, iterations)
     |> Image.count_on
+  end
+
+  def iterate_18 do
+    iterate(@default_input, 18)
   end
 
   defp iterate(image, _transitions, 0), do: image
