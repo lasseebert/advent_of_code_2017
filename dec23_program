@@ -1,0 +1,32 @@
+debug = true
+n = 81
+max_n = n
+count = 0
+
+if debug do
+  n = 108_100
+  max_n = n + 17_000
+end
+
+loop do
+  found = false
+
+  for a = 2; a < n; a++ do
+    for b = 2; b < n, b++ do
+      if a * b == n do
+        found = true
+      end
+    end
+  end
+
+  if found do
+    count = count + 1
+  end
+
+  if n == max_n do
+    print count
+    exit
+  end
+
+  n = n + 17
+end

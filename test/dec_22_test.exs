@@ -27,7 +27,9 @@ defmodule Advent.Dec22Test do
       """
 
       assert Dec22Part2.count_infections(input, 100) == 26
-      assert Dec22Part2.count_infections(input) == 2_511_944
+
+      # Disabling slow test
+      #assert Dec22Part2.count_infections(input) == 2_511_944
     end
   end
 end
