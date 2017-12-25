@@ -40,6 +40,18 @@ defmodule Advent.Dec24 do
   Of these bridges, the strongest one is 0/1--10/1--9/10; it has a strength of 0+1 + 1+10 + 10+9 = 31.
 
   What is the strength of the strongest bridge you can make with the components you have available?
+
+  --- Part Two ---
+
+  The bridge you've built isn't long enough; you can't jump the rest of the way.
+
+  In the example above, there are two longest bridges:
+
+  0/2--2/2--2/3--3/4
+  0/2--2/2--2/3--3/5
+  Of them, the one which uses the 3/5 component is stronger; its strength is 0+2 + 2+2 + 2+3 + 3+5 = 19.
+
+  What is the strength of the longest bridge you can make? If you can make multiple bridges of the longest length, pick the strongest one.
   """
 
   @default_input_path "inputs/dec_24"
@@ -52,12 +64,27 @@ defmodule Advent.Dec24 do
     |> strongest_bridge(0, 0)
   end
 
+  def longest_bridge(input \\ @default_input) do
+    input
+    |> parse
+    |> longest_bridge(0, {0, 0})
+    |> elem(1)
+  end
+
   defp strongest_bridge(components, next_port, max_strength) do
     for {a, b} <- components, a == next_port or b == next_port do
       next_port = if a == next_port, do: b, else: a
       strongest_bridge(components -- [{a, b}], next_port, max_strength + a + b)
     end
     |> Enum.max(fn -> max_strength end)
+  end
+
+  defp longest_bridge(components, next_port, {l, s}) do
+    for {a, b} <- components, a == next_port or b == next_port do
+      next_port = if a == next_port, do: b, else: a
+      longest_bridge(components -- [{a, b}], next_port, {l + 1, s + a + b})
+    end
+    |> Enum.max(fn -> {l, s} end)
   end
 
   defp parse(input) do
